@@ -233,7 +233,14 @@ public class Map {
 		return neighbors;
 	}
 	*/
-	/* returns the tile in the map at the given x-y coordinate location */
+	
+	/**
+	 * Returns the Tile in the map at the given x-y pixel coordinate location.
+	 * 
+	 * @param locx The x coordinate
+	 * @param locy The y coordinate
+	 * @return The tile at locx, locy
+	 */
 	public Tile tileAt(int locx, int locy) {
 		int x = locx/scale;
 		int y = locy/scale;
