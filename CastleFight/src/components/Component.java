@@ -1,6 +1,6 @@
 package components;
 
-//Another test
+//Test
 public class Component {
 
 }
