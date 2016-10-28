@@ -113,7 +113,7 @@ public class Game {
 		try {
 			Display.setDisplayMode(new DisplayMode(width,height));
 			Display.create();
-			Display.setTitle("Cave Explorer v." + version);
+			Display.setTitle("Castle Fight v." + version);
 			Display.setVSyncEnabled(true);
 		} catch (LWJGLException e) {
 			e.printStackTrace();
@@ -403,6 +403,7 @@ public class Game {
 		GL11.glColor4f( 1f, 1f, 1f, 1f);
 		
 		if (gamestate == Gamestate.TITLE) {
+			UIHelper.drawStringCentered(scr_x/2, 160, "Castle Fight", Color.red);
 			UIHelper.drawStringCentered(scr_x/2, 200, "Press [Enter] to begin", Color.red);
 			UIHelper.drawStringCentered(scr_x/2, 220, "Press [Space] for Options", Color.red);
 			UIHelper.drawStringCentered(scr_x/2, 250, "v0.01", Color.red);
