@@ -3,6 +3,7 @@ import game.Game;
 import game.World;
 import geom.Rectangle2D;
 import geom.Vector2D;
+import geom.Direction;
 
 import inputHelpers.KeyboardHelper;
 
@@ -24,7 +25,7 @@ import controllers.KeyboardController;
 import drawing.Animation;
 import drawing.Sprite;
 
-enum Direction {LEFT, RIGHT};
+	
 
 public class PlatformPlayer {
 	Rectangle2D boundingBox;
@@ -92,10 +93,7 @@ public class PlatformPlayer {
 	
 	public void loadResources() {
 		try {
-			// load texture from PNG file
-			Texture standT = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/player.png"));
-			//pic = new Sprite(standT, 16, 32);
-
+			// load textures from PNG files
 			Texture runT = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/LemWalk.png"));
 			Sprite runSheet = new Sprite(runT);
 			runAnim = new Animation(runSheet, 6, 8, .6, true);
@@ -104,11 +102,6 @@ public class PlatformPlayer {
 			Sprite idleSheet = new Sprite(idleT);
 			idleAnim = new Animation(idleSheet, 6, new double[] {1}, true);
 			
-			/*
-			Texture deathT = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/EricDeath.png"));
-			Sprite deathSheet = new Sprite(deathT);
-			deathAnim = new Animation(deathSheet, 32, 8, 0.8, false);
-			*/
 			Texture deathT = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/LemFallDeath.png"));
 			Sprite deathSheet = new Sprite(deathT);
 			deathAnim = new Animation(deathSheet, 16, 16, 0.8, false);
@@ -449,20 +442,7 @@ public class PlatformPlayer {
 	}
 	
 	
-	public void draw(Vector2D offset, World world) {
-		/* draw intersection tiles */
-		/*
-		int scale = world.map.scale();
-		int width = IntersectionColumns.length;
-		int height = IntersectionRows.length;
-		
-		GL11.glColor4f( .8f, 0, 0, 1f);	
-		for (Tile tile : world.map.tiles()) {
-			if ( (tile.locx >= IntersectionColumns[0]*scale && tile.locx <= IntersectionColumns[width-1]*scale) ||
-				 (tile.locy >= IntersectionRows[0]*scale && tile.locy <= IntersectionRows[height-1]*scale)	     )
-				tile.draw(offset);
-		}
-		*/         
+	public void draw(Vector2D offset, World world) {       
 		boolean flipped = direction.equals(Direction.LEFT);
 		
 		Color col = stunned ? new Color(255,100,100,100) : new Color(255,255,255,255);
@@ -485,33 +465,10 @@ public class PlatformPlayer {
 		
 		if (getState().equals(PlayerState.RUNNING)) 
 			runAnim.draw( pos().add(offset).add(new Vector2D(0, 0)), col, flipped);
-		
-		/*
-		if (state.equals(PlayerState.DEAD)) 
-			deathAnim.draw( pos().add(offset).add(new Vector2D(-15, -22)), col, flipped);
-		*/
+
 		if (getState().equals(PlayerState.DEAD)) 
 			deathAnim.draw( pos().add(offset).add(new Vector2D(-5, -1)), col, flipped);
 		
-		/*
-		GL11.glColor4f( 1f, 1f, 1f, 1f);	
-		pic.getTexture().bind();
-		int offX = offset.getXi();
-		int offY = offset.getYi();
-		
-		float sclX = pic.sclX();
-		float sclY = pic.sclY();
-		GL11.glBegin(GL11.GL_QUADS);
-			GL11.glTexCoord2f(0,0);
-			GL11.glVertex2f(getXi() + offX, getYi() + offY);
-			GL11.glTexCoord2f(sclX,0);
-			GL11.glVertex2f(getOppXi() + offX, getYi() + offY);
-			GL11.glTexCoord2f(sclX, sclY);
-			GL11.glVertex2f(getOppXi() + offX, getOppYi() + offY);
-			GL11.glTexCoord2f(0,sclY);
-			GL11.glVertex2f(getXi() + offX, getOppYi() + offY);
-		GL11.glEnd();
-		*/
 	}
 	
 	public Vector2D pos() { return boundingBox.pos(); }

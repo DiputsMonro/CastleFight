@@ -11,6 +11,13 @@ public class Sprite {
 	private int baseWidth, baseHeight;
 	private float sclX, sclY;
 	
+	/***
+	 * Construct a Sprite with a custom width and height.
+	 * 
+	 * @param texture  Texture to use as the Sprite image
+	 * @param width    Sprite width
+	 * @param height   Sprite height
+	 */
 	public Sprite (Texture texture, int width, int height){
 		this.texture = texture;
 		this.baseWidth = this.width = width;
@@ -19,6 +26,11 @@ public class Sprite {
 		sclY = (float) texture.getImageHeight() / texture.getTextureHeight();
 	}
 	
+	/***
+	 * Construct a Sprite with the width and height of the texture.
+	 * 
+	 * @param texture  Texture to use as the Sprite image
+	 */
 	public Sprite (Texture texture){
 		this.texture = texture;
 		this.baseWidth = this.width = texture.getImageWidth();

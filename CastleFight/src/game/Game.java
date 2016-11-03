@@ -50,7 +50,7 @@ import drawing.Sprite;
 import ui.UIHelper;
 
 
-enum Gamestate {TITLE, MAIN, MENU, DEAD, PAUSED};
+enum Gamestate {TITLE, MAIN, MENU, DEAD, PAUSED, MAP_EDIT};
 
 @SuppressWarnings("deprecation")
 public class Game {
@@ -151,30 +151,20 @@ public class Game {
 		//Init controller
 		controller = new KeyboardController();
 		
-		//Tile.loadTileSprites();
-		world = new World();
-		world.loadMap("res/Map2.mp1");
-
-		Texture texture = null;
-		Texture blockT = null;
-		Texture blinky = null;
 		try {
-			// load texture from PNG file
-			blockT = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/image.png"));
-			blinky = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/AniStone.png"));
 			tileBorder = new Sprite(TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/TileBorder.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		
-		//create Sprite from texture
+		// Create World
+		world = new World();
+		world.loadMap("res/Map2.mp1");
+		
+		// Create Sprite from texture
 		world.player = new PlatformPlayer(controller, world.getMap().playerLoc, 6, 10 );
 		world.player.loadResources();
-
-		Sprite blockS = new Sprite(blockT);
-		//world.blocks = new ArrayList<WorldBlock>();
-		//world.blocks.add( new WorldBlock( new Vector2D(300, 300), BlockType.STONE, blockS));
-		
+	
 		/* Init UIHelper */
 		UIHelper.init();
 			
@@ -281,7 +271,9 @@ public class Game {
 		KeyboardHelper.refresh();
 		MouseHelper.refresh();
 			
-		
+		/******************
+		 **    PAUSED    **
+		 ******************/
 		if (gamestate == Gamestate.PAUSED) {
 			
 			for (GUIWindow win : pauseWindows) {
@@ -296,6 +288,9 @@ public class Game {
 		
 		}
 		
+		/*****************
+		 **    TITLE    **
+		 *****************/
 		if (gamestate == Gamestate.TITLE) {
 			if(KeyboardHelper.pressed(Keyboard.KEY_RETURN))
 				changeGamestate(Gamestate.MAIN);
@@ -330,7 +325,7 @@ public class Game {
 		}
 		
 		if (gamestate == Gamestate.MAIN || gamestate == Gamestate.DEAD) {
-			/*
+			
 			if(KeyboardHelper.pressed(Keyboard.KEY_NUMPAD8))
 				timescale += .1;
 			if(KeyboardHelper.pressed(Keyboard.KEY_NUMPAD2))
@@ -339,7 +334,7 @@ public class Game {
 				timescale = 1;
 
 			delta = delta * timescale;
-			 */
+			 
 			
 			if (controller.pressed(Controls.PAUSE)) {
 				changeGamestate(Gamestate.PAUSED);
@@ -390,6 +385,11 @@ public class Game {
 			camera.update(delta, world);
 		}
 		
+		if (gamestate == Gamestate.MAP_EDIT) {
+			world.update(delta);
+			camera.update(delta, world);
+		}
+		
 		if (gamestate == Gamestate.DEAD) {
 			if(KeyboardHelper.pressed(Keyboard.KEY_SPACE)) {
 				changeGamestate(Gamestate.MAIN);
@@ -429,7 +429,7 @@ public class Game {
 			UIHelper.drawString(400, 145, "timescale: " + timescale, txtCol);
 			//------
 			
-			//Draw Tile Border
+			//Draw Tile Border around selected tile
 			if( selectedTile != null) {
 				tileBorder.draw(new Vector2D(selectedTile.getLocx() * Tile.getScale(), selectedTile.getLocy() * Tile.getScale()).add(camera.offset()), new Color(0,255,0) );
 				
