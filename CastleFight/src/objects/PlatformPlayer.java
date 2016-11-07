@@ -1,33 +1,50 @@
 package objects;
-import game.Game;
-import game.World;
-import geom.Rectangle2D;
-import geom.Vector2D;
-import geom.Direction;
-
-import inputHelpers.KeyboardHelper;
-
-import java.awt.Font;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.opengl.GL11;
 import org.newdawn.slick.Color;
-import org.newdawn.slick.TrueTypeFont;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.opengl.TextureLoader;
 import org.newdawn.slick.util.ResourceLoader;
 
+import ces.component.Animations;
+import ces.component.IComponent;
+import ces.entity.Entity;
+import ces.system.ASystem;
+import ces.system.ISystem;
 import controllers.ControllerInterface;
 import controllers.Controls;
-import controllers.KeyboardController;
 import drawing.Animation;
 import drawing.Sprite;
+import game.Game;
+import game.World;
+import geom.Direction;
+import geom.Rectangle2D;
+import geom.Vector2D;
 
 	
 
 public class PlatformPlayer {
+	/*
+	 * Until we have redefined everything in terms of Component-Entity-Systems, 
+	 * objects such as PlatformPlayer will maintain an internal Entity that
+	 * they will reference for their aspects which have been converted into
+	 * the CES.  They will use the defined Systems here
+	 * (which will later be pushed up into Game) to act upon these components.
+	 * Such systems MAY ONLY modify the Player state through those components,
+	 * and MAY NOT modify the player directly.
+	 */
+	Entity entity = new Entity();
+	HashMap<String,ISystem> systems = new HashMap<String,ISystem>();
+	
+
+	
+	
+	
+	/*
+	 * Other attributes (Should be moved into components)
+	 */
 	Rectangle2D boundingBox;
 	private Vector2D vel;
 	Vector2D movt;
@@ -48,7 +65,7 @@ public class PlatformPlayer {
 	Vector2D pushImpulse;
 	
 	Sprite jumpAsc, jumpPeak, jumpDesc;
-	Animation runAnim, idleAnim, deathAnim, wclimbAnim;
+	//Animation runAnim, idleAnim, deathAnim, wclimbAnim;
 	private PlayerState state;
 	Direction direction;
 	
@@ -57,6 +74,22 @@ public class PlatformPlayer {
 	int[] IntersectionRows, IntersectionColumns;
 	
 	public PlatformPlayer(ControllerInterface controller, Vector2D loc, int width, int height){
+		systems.put("AnimationSystem", new ASystem() {
+			@Override
+			public void impureAct__(Entity entity, Object arg) {
+				// TODO Auto-generated method stub
+
+			}
+			
+		});
+		
+		
+		
+		
+		
+		
+		
+		
 		spawnPos = loc;
 		boundingBox = new Rectangle2D(loc, width, height, 0);
 		this.controller = controller;
@@ -94,21 +127,31 @@ public class PlatformPlayer {
 	public void loadResources() {
 		try {
 			// load textures from PNG files
+			/* Create Animations and load into Animations Component */
+			/* TODO: Should be done outside of class later in some initialization component.
+			 * Ideally these animation definitions could be read from some datafile.
+			 */
+			HashMap<String,Animation> animations = new HashMap<String,Animation>();
+			
 			Texture runT = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/LemWalk.png"));
 			Sprite runSheet = new Sprite(runT);
-			runAnim = new Animation(runSheet, 6, 8, .6, true);
+			animations.put("run", new Animation(runSheet, 6, 8, .6, true));
 			
 			Texture idleT = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/LemStand.png"));
 			Sprite idleSheet = new Sprite(idleT);
-			idleAnim = new Animation(idleSheet, 6, new double[] {1}, true);
+			animations.put("idle", new Animation(idleSheet, 6, new double[] {1}, true));
 			
 			Texture deathT = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/LemFallDeath.png"));
 			Sprite deathSheet = new Sprite(deathT);
-			deathAnim = new Animation(deathSheet, 16, 16, 0.8, false);
+			animations.put("death", new Animation(deathSheet, 16, 16, 0.8, false));
 			
 			Texture wclimbT = TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/LemWallClimb.png"));
 			Sprite wclimbSheet = new Sprite(wclimbT);
-			wclimbAnim = new Animation(wclimbSheet, 10, 9, 1.2, true);
+			animations.put("climb", new Animation(wclimbSheet, 10, 9, 1.2, true));
+			
+			IComponent animComp = new Animations();
+			entity.addComponent(animComp);
+			
 			
 			jumpAsc = new Sprite( TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/LemAsc.png")) ); 
 			jumpPeak = new Sprite( TextureLoader.getTexture("PNG", ResourceLoader.getResourceAsStream("res/LemPeak.png")) ); 
@@ -121,27 +164,7 @@ public class PlatformPlayer {
 		
 	}
 	
-	void changeState(PlayerState newState) {
-		if (getState() != newState && getState() != PlayerState.DEAD) {
-			setState(newState);
-			
-			switch(newState) {
-				case RUNNING:
-					runAnim.restart();
-					break;
-				case STANDING:
-					idleAnim.restart();
-					break;
-				case DEAD:
-					setHp(0);
-					deathAnim.restart();
-					break;
-				case WALL_CLIMBING:
-					wclimbAnim.restart();
-					break;
-			}
-		}
-	}
+ 
 	
 	public void update(double delta, World world) {
 		ableToJump = true;
